@@ -8460,17 +8460,45 @@ sat_score_result = JSON.parse(%q|
 |)
 
 def execute(sat_hash)
-  puts "Enter a school name:"
-  user_input = gets.chomp!
-  user_input = user_input.to_s
-  final_result = sat_score(user_input, sat_hash)
-  puts "#{final_result}"
+  puts "Enter the name of the school"
+  user_input_school_name = gets.chomp!
+  user_input_school_name = user_input_school_name.to_s.upcase
+  begin 
+    final_result_with_name = sat_score_with_name(user_input_school_name, sat_hash)
+    puts "The school is number #{final_result_with_name[:school_num]} on the list."
+    puts "Enter a school number:"
+    user_input = gets.chomp
+    user_input = user_input.to_i
+    begin
+      final_result = sat_score_with_num(user_input, sat_hash)
+      puts "Name of the school: #{final_result[:school_name]}"
+      puts "Number of SAT tests taken: #{final_result[:num_taken]}"
+      puts "Critical Reading Average: #{final_result[:average_one]}"
+      puts "Math Average: #{final_result[:average_two]}"
+      puts "Writing Average: #{final_result[:average_three]}"
+    rescue
+      puts "The number that you entered is not listed."
+    end
+  rescue
+    puts "The school you entered is not on the list."
+  end
+  
 end
 
-def sat_score(school_name, sat_hash)
-  sat_hash["data"].collect do |infos|
-    if infos[10] == school_name
-      puts "works"
+def sat_score_with_num(school_num, use_sat_hash)
+  use_sat_hash["data"].each do |infos|
+    if infos[0] == school_num
+      return {school_name: infos[9], num_taken: infos[10], average_one: infos[11], average_two: infos[12], average_three: infos[13]}
+      break
+    end
+  end
+end
+
+def sat_score_with_name(school_name, user_sat_hash)
+  user_sat_hash["data"].each do |infos|
+    if infos[9] == school_name
+      return {school_num: infos[0]}
+      break
     end
   end
 end
